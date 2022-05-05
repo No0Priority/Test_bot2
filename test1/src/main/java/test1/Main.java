@@ -1,4 +1,9 @@
 package test1;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,32 +24,43 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 
 public class Main {
-    // some change
+    // change 14:25
     public static void main(String[] args) throws InterruptedException {
     	PropertyConfigurator.configure(System.getProperty("user.dir") + "/src/main/resources/log4j.properties");
 
         try {
+        	// ===========INITIALIZATION==============
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new test_echo());
     		WebDriverManager.firefoxdriver().setup();
     		WebDriver driver = new FirefoxDriver();
     		driver.get("https://www.investing.com/crypto/");
     		test_echo ts = new test_echo();
-    		for (int i = 0; i<100; i++) {
+    		// =========================
+    		
+    		//for (int i = 0; i<100; i++) {
     			Thread.sleep(5000);
     			//Elements Alex = doc.getElementsByClass("pid-1057391-last");
     			//System.out.println(Alex.text());
     			WebElement bitcoin = driver.findElement(By.className("pid-1057391-last"));
-    			/*List<WebElement> plants = driver.findElements(By.className());
+    			List<WebElement> plants = driver.findElements(By.className("js-currency-price"));
+    			System.out.println("before");
+    			Map<String, String> crypto_dict = new HashMap<String, String>();
+
     			for (WebElement str:plants) {
-    				System.out.println(str.getText());
-    			}*/
+    				crypto_dict.put(str.getAttribute("title"), str.getText());
+    			}
+    			System.out.println(Arrays.asList(crypto_dict));
+    			String bitc = crypto_dict.get("BTC");
+    			String eth = crypto_dict.get("ETH");
+    			System.out.println("ETH"+eth+"BTC"+bitc);
+
+    			System.out.println("after");
+    			//ts.SendMsg("1341282234", "курс битка: "+bitcoin.getText());
     			
-    			ts.SendMsg("1341282234", "курс битка: "+bitcoin.getText());
-    			
-    			ts.SendMsg("844626806", "курс битка: "+bitcoin.getText());
+    			//ts.SendMsg("844626806", "курс битка: "+bitcoin.getText());
     			driver.navigate().refresh();
-    		}
+    		//}
 
     		driver.quit();
 
