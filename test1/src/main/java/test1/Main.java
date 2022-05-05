@@ -40,7 +40,7 @@ public class Main {
     		
     		//for (int i = 0; i<100; i++) {
     			Thread.sleep(5000);
-    			//Elements Alex = doc.getElementsByClass("pid-1057391-last");
+    			//Elements Alex = doc.getElementsByClass("pid-1057391-last"); asdasd
     			//System.out.println(Alex.text());
     			WebElement bitcoin = driver.findElement(By.className("pid-1057391-last"));
     			List<WebElement> plants = driver.findElements(By.className("js-currency-price"));
