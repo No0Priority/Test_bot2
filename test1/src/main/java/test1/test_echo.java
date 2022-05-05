@@ -31,6 +31,9 @@ public class test_echo extends TelegramLongPollingBot {
 
 	            try {
 	            	SendMsg("1341282234", update.getMessage().getText());
+	            	SendMsg("844626806", update.getMessage().getText());
+
+	            	
 	            	System.out.println("before");
 	            	System.out.println("|"+update.getMessage().getText()+"|");
 	            	System.out.println(String.valueOf(update.getMessage().getText().equals("/test")));
