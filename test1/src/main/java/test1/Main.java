@@ -32,12 +32,12 @@ public class Main {
 	// =====================
     // change 14:26
     public static void main(String[] args) throws InterruptedException {
-    	PropertyConfigurator.configure(System.getProperty("user.dir") + "/src/main/resources/log4j.properties");
+    	PropertyConfigurator.configure(System.getProperty("user.dir") + "/src/main/resources/log4j.properties"); //оставить в мейне
 
         try {
         	// ===========INITIALIZATION==============
-            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot(new test_echo());
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);// оставить в мейне
+            telegramBotsApi.registerBot(new test_echo()); //оставить в мейне
     		WebDriverManager.firefoxdriver().setup();
     		WebDriver driver = new FirefoxDriver();
     		driver.get("https://www.investing.com/crypto/");
