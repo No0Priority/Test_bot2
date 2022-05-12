@@ -27,14 +27,27 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 
 	static List<WebElement> prices;
 	static Map<String, String> crypto_dict = new HashMap<String, String>();
+	static boolean Started;
 	public void check_crypto_commands(Update update, String crypto_choice) {
 		System.out.println(crypto_choice+" success");
 
 	}
+	public void check_crypto_commands(Update update) {
+		for (String command: crypto_dict.keySet()) {
+			System.out.println(command);
+	    	if (update.getMessage().getText().equals(command)) {
+	        	System.out.println(command+"success");
+	        	String crypto_price = crypto_dict.get(command);
+	        	System.out.println(command+": "+crypto_price);
+	    		//SendMsg("1341282234", "Ethereum: "+eth);
+	    		SendMsg(update.getMessage().getChatId().toString(), command+" "+crypto_price);
+			}
+		}
+	}
 	public void create_buttons(String question, ArrayList<String> crypto_list, Update update) {
 		System.out.println("new function success");
 		SendMessage sendMessage = new SendMessage();
-		sendMessage.setText("Hello, which cryptocurrency would you like to track?");
+		sendMessage.setText(question);
 		sendMessage.setParseMode(ParseMode.MARKDOWN);
 		sendMessage.setChatId(update.getMessage().getChatId().toString());
 		ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
@@ -44,8 +57,10 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 //		keyboardRow1.add("ass");
 //		keyboardRow1.add("tits");
 //		keyboardRow1.add("Tether");
+		System.out.println(Arrays.asList(crypto_list));
 		for (String button : crypto_list) {
 			keyboardRow1.add(button);
+			System.out.println(button);
 		}
 		keyboardRowList.add(keyboardRow1);
 		replyKeyboardMarkup.setKeyboard(keyboardRowList);
@@ -71,43 +86,33 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	            	SendMsg(update.getMessage().getChatId().toString(), update.getMessage().getText());
 	            	
 	            	if (update.getMessage().getText().equals("/start")) {
-	            		create_buttons("Ass and tits question", new ArrayList<String>(Arrays.asList("eth", "bitc", "doge")), update);
+	            		if (!Started) {
+		            		test_echo ts = new test_echo();
+		            		Thread thread = new Thread(ts);
+		            		thread.start();
+		            		Started = true;
+	            		}
+	            		System.out.println(Arrays.asList(crypto_dict.keySet()));
+	            		System.out.println(crypto_dict.keySet().isEmpty());
+	            		while (crypto_dict.keySet().isEmpty()) {
+	            			Thread.sleep(1000);
+	            			System.out.println("======");
+	            			System.out.println("sleeping");
+		            		System.out.println(Arrays.asList(crypto_dict.keySet()));
+		            		System.out.println(crypto_dict.keySet().isEmpty());
+		            		System.out.println("=======");
+	            		}
+	            		Thread.sleep(1000);
+            			create_buttons("Ass and tits question", new ArrayList<>(crypto_dict.keySet()), update);
 
-	            		test_echo ts = new test_echo();
-	            		Thread thread = new Thread(ts);
-	            		thread.start();
+
     				
     				}
+	            	check_crypto_commands(update);
     				
     					
     				
-	            	else if (update.getMessage().getText().equals("Bitcoin")) {
-	            		System.out.println("bitc success");
-	            		String bitc = crypto_dict.get("BTC");
-	            		System.out.println(bitc);
-	        			//SendMsg("1341282234", "Bitcoin: "+bitc);
-	        			System.out.println(Arrays.asList(crypto_dict));
 
-	        			System.out.println("chatid2: "+update.getMessage().getChatId().toString());
-	        			SendMsg(update.getMessage().getChatId().toString(), "Bitcoin: "+bitc);
-	            	}
-	        			
-	            	else if (update.getMessage().getText().equals("Ethereum")) {
-		            	System.out.println("ethereum success");
-		            	String eth = crypto_dict.get("ETH");
-		            	System.out.println(eth);
-		        		//SendMsg("1341282234", "Ethereum: "+eth);
-		        		SendMsg(update.getMessage().getChatId().toString(), "Ethereum: "+eth);
-	        		}
-		        
-	            	else if (update.getMessage().getText().equals("Tether")) {
-		            	System.out.println("tether success");
-		            	String usdt = crypto_dict.get("USDT");
-		            	System.out.println(usdt);
-		        		//SendMsg("1341282234", "Tether: "+usdt);
-		        			
-		        		SendMsg(update.getMessage().getChatId().toString(), "Tether: "+usdt);
-	            	}
 	            	
 	        		
 	        	} catch (Exception e) {
