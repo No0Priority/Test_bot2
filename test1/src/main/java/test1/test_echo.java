@@ -27,6 +27,38 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 
 	static List<WebElement> prices;
 	static Map<String, String> crypto_dict = new HashMap<String, String>();
+	public void check_crypto_commands(Update update, String crypto_choice) {
+		System.out.println(crypto_choice+" success");
+
+	}
+	public void create_buttons(String question, ArrayList<String> crypto_list) {
+		System.out.println("new function success");
+		SendMessage sendMessage = new SendMessage();
+		sendMessage.setText("Hello, which cryptocurrency would you like to track?");
+		sendMessage.setParseMode(ParseMode.MARKDOWN);
+		sendMessage.setChatId("1341282234");
+		ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+		replyKeyboardMarkup.setResizeKeyboard(true);
+		List<KeyboardRow> keyboardRowList = new ArrayList<>();
+		KeyboardRow keyboardRow1 = new KeyboardRow();
+//		keyboardRow1.add("ass");
+//		keyboardRow1.add("tits");
+//		keyboardRow1.add("Tether");
+		for (String button : crypto_list) {
+			keyboardRow1.add(button);
+		}
+		keyboardRowList.add(keyboardRow1);
+		replyKeyboardMarkup.setKeyboard(keyboardRowList);
+		sendMessage.setReplyMarkup(replyKeyboardMarkup);
+		try {
+			execute(sendMessage);
+		} catch (TelegramApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("some shit");
+		}
+		System.out.println("new function end");
+	}
 	public void onUpdateReceived(Update update) {
 	    if (update.hasMessage() && update.getMessage().hasText()) {
 	        SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
@@ -39,26 +71,15 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	            	SendMsg("844626806", update.getMessage().getText());
 	            	
 	            	if (update.getMessage().getText().equals("/start")) {
-	            		SendMessage sendMessage = new SendMessage();
-	            		sendMessage.setText("Hello, which cryptocurrency would you like to track?");
-	            		sendMessage.setParseMode(ParseMode.MARKDOWN);
-	            		sendMessage.setChatId(message.getChatId());
+	            		create_buttons("Ass and tits question", new ArrayList<String>(Arrays.asList("eth", "bitc", "doge")));
+
 	            		test_echo ts = new test_echo();
-	            		ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-	            		replyKeyboardMarkup.setResizeKeyboard(true);
-	            		List<KeyboardRow> keyboardRowList = new ArrayList<>();
-	            		KeyboardRow keyboardRow1 = new KeyboardRow();
-	            		keyboardRow1.add("Bitcoin");
-	            		keyboardRow1.add("Ethereum");
-	            		keyboardRow1.add("Tether");
-	            		keyboardRowList.add(keyboardRow1);
-	            		replyKeyboardMarkup.setKeyboard(keyboardRowList);
-	            		sendMessage.setReplyMarkup(replyKeyboardMarkup);
-	            		execute(sendMessage);
 	            		Thread thread = new Thread(ts);
 	            		thread.start();
     				
     				}
+    				
+    					
     				
 	            	else if (update.getMessage().getText().equals("Bitcoin")) {
 	            		System.out.println("bitc success");
