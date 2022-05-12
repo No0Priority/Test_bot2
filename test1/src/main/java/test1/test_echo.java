@@ -34,18 +34,18 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	}
 	public void check_crypto_commands(Update update) {
 		for (String command: crypto_dict.keySet()) {
-			System.out.println(command);
+			//System.out.println(command);
 	    	if (update.getMessage().getText().equals(command)) {
-	        	System.out.println(command+"success");
+	        	//System.out.println(command+"success");
 	        	String crypto_price = crypto_dict.get(command);
-	        	System.out.println(command+": "+crypto_price);
+	        	//System.out.println(command+": "+crypto_price);
 	    		//SendMsg("1341282234", "Ethereum: "+eth);
 	    		SendMsg(update.getMessage().getChatId().toString(), command+" "+crypto_price);
 			}
 		}
 	}
 	public void create_buttons(String question, ArrayList<String> crypto_list, Update update) {
-		System.out.println("new function success");
+		//System.out.println("new function success");
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.setText(question);
 		sendMessage.setParseMode(ParseMode.MARKDOWN);
@@ -57,10 +57,10 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 //		keyboardRow1.add("ass");
 //		keyboardRow1.add("tits");
 //		keyboardRow1.add("Tether");
-		System.out.println(Arrays.asList(crypto_list));
+		//System.out.println(Arrays.asList(crypto_list));
 		for (String button : crypto_list) {
 			keyboardRow1.add(button);
-			System.out.println(button);
+			//System.out.println(button);
 		}
 		keyboardRowList.add(keyboardRow1);
 		replyKeyboardMarkup.setKeyboard(keyboardRowList);
@@ -70,9 +70,9 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		} catch (TelegramApiException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("some shit");
+			//System.out.println("some shit");
 		}
-		System.out.println("new function end");
+		//System.out.println("new function end");
 	}
 	public void onUpdateReceived(Update update) {
 	    if (update.hasMessage() && update.getMessage().hasText()) {
@@ -92,8 +92,8 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            		thread.start();
 		            		Started = true;
 	            		}
-	            		System.out.println(Arrays.asList(crypto_dict.keySet()));
-	            		System.out.println(crypto_dict.keySet().isEmpty());
+	            		//System.out.println(Arrays.asList(crypto_dict.keySet()));
+	            		//System.out.println(crypto_dict.keySet().isEmpty());
 	            		while (crypto_dict.keySet().isEmpty()) {
 	            			Thread.sleep(1000);
 	            			System.out.println("======");
@@ -104,17 +104,9 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	            		}
 	            		Thread.sleep(1000);
             			create_buttons("Ass and tits question", new ArrayList<>(crypto_dict.keySet()), update);
-
-
-    				
     				}
 	            	check_crypto_commands(update);
-    				
-    					
-    				
 
-	            	
-	        		
 	        	} catch (Exception e) {
 	                e.printStackTrace();
 	            }
@@ -154,18 +146,12 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 				e.printStackTrace();
 			}
 
-			WebElement bitcoin = driver.findElement(By.className("pid-1057391-last"));
-			prices = driver.findElements(By.className("js-currency-price"));
-			System.out.println("before");
-			
+			prices = driver.findElements(By.className("js-currency-price"));			
 
 			for (WebElement str:prices) {
 				crypto_dict.put(str.getAttribute("title"), str.getText());
 			}
 			System.out.println("running");
-			String bitc = crypto_dict.get("BTC");
-			String eth = crypto_dict.get("ETH");
-			System.out.println("ETH"+eth+"BTC"+bitc);
 			driver.navigate().refresh();
 		}
 		
