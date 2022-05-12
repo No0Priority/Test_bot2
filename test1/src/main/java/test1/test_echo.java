@@ -31,12 +31,12 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		System.out.println(crypto_choice+" success");
 
 	}
-	public void create_buttons(String question, ArrayList<String> crypto_list) {
+	public void create_buttons(String question, ArrayList<String> crypto_list, Update update) {
 		System.out.println("new function success");
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.setText("Hello, which cryptocurrency would you like to track?");
 		sendMessage.setParseMode(ParseMode.MARKDOWN);
-		sendMessage.setChatId("1341282234");
+		sendMessage.setChatId(update.getMessage().getChatId().toString());
 		ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 		replyKeyboardMarkup.setResizeKeyboard(true);
 		List<KeyboardRow> keyboardRowList = new ArrayList<>();
@@ -62,16 +62,16 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	public void onUpdateReceived(Update update) {
 	    if (update.hasMessage() && update.getMessage().hasText()) {
 	        SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
-	        message.setChatId(update.getMessage().getChatId().toString());
-	        message.setText(update.getMessage().getText());
+	        //message.setChatId(update.getMessage().getChatId().toString());
+	        //message.setText(update.getMessage().getText());
 	    	
 
 	            try {
 	            	//SendMsg("1341282234", update.getMessage().getText());
-	            	SendMsg("844626806", update.getMessage().getText());
+	            	SendMsg(update.getMessage().getChatId().toString(), update.getMessage().getText());
 	            	
 	            	if (update.getMessage().getText().equals("/start")) {
-	            		create_buttons("Ass and tits question", new ArrayList<String>(Arrays.asList("eth", "bitc", "doge")));
+	            		create_buttons("Ass and tits question", new ArrayList<String>(Arrays.asList("eth", "bitc", "doge")), update);
 
 	            		test_echo ts = new test_echo();
 	            		Thread thread = new Thread(ts);
@@ -86,8 +86,10 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	            		String bitc = crypto_dict.get("BTC");
 	            		System.out.println(bitc);
 	        			//SendMsg("1341282234", "Bitcoin: "+bitc);
-	        			
-	        			SendMsg("844626806", "Bitcoin: "+bitc);
+	        			System.out.println(Arrays.asList(crypto_dict));
+
+	        			System.out.println("chatid2: "+update.getMessage().getChatId().toString());
+	        			SendMsg(update.getMessage().getChatId().toString(), "Bitcoin: "+bitc);
 	            	}
 	        			
 	            	else if (update.getMessage().getText().equals("Ethereum")) {
@@ -95,7 +97,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            	String eth = crypto_dict.get("ETH");
 		            	System.out.println(eth);
 		        		//SendMsg("1341282234", "Ethereum: "+eth);
-		        		SendMsg("844626806", "Ethereum: "+eth);
+		        		SendMsg(update.getMessage().getChatId().toString(), "Ethereum: "+eth);
 	        		}
 		        
 	            	else if (update.getMessage().getText().equals("Tether")) {
@@ -104,7 +106,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            	System.out.println(usdt);
 		        		//SendMsg("1341282234", "Tether: "+usdt);
 		        			
-		        		SendMsg("844626806", "Tether: "+usdt);
+		        		SendMsg(update.getMessage().getChatId().toString(), "Tether: "+usdt);
 	            	}
 	            	
 	        		
@@ -155,7 +157,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 			for (WebElement str:prices) {
 				crypto_dict.put(str.getAttribute("title"), str.getText());
 			}
-			System.out.println(Arrays.asList(crypto_dict));
+			System.out.println("running");
 			String bitc = crypto_dict.get("BTC");
 			String eth = crypto_dict.get("ETH");
 			System.out.println("ETH"+eth+"BTC"+bitc);
