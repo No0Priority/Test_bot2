@@ -28,9 +28,11 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	static List<WebElement> prices;
 	static Map<String, String> crypto_dict = new HashMap<String, String>();
 	static boolean Started;
-	public void check_crypto_commands(Update update, String crypto_choice) {
-		System.out.println(crypto_choice+" success");
-
+	static ArrayList<String> dialogue_id = new ArrayList<String>();
+	public void save_future_reply_id(Update update, String command) {
+		dialogue_id.add(String.valueOf(update.getMessage().getMessageId()+2));
+		dialogue_id.add(command);
+		System.out.println("id of choice: "+update.getMessage().getMessageId().toString());
 	}
 	public void check_crypto_commands(Update update) {
 		for (String command: crypto_dict.keySet()) {
@@ -75,6 +77,8 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		//System.out.println("new function end");
 	}
 	public void onUpdateReceived(Update update) {
+		System.out.println("message id: "+update.getMessage().getMessageId().toString());
+
 	    if (update.hasMessage() && update.getMessage().hasText()) {
 	        SendMessage message = new SendMessage(); // Create a SendMessage object with mandatory fields
 	        //message.setChatId(update.getMessage().getChatId().toString());
@@ -83,9 +87,10 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 
 	            try {
 	            	//SendMsg("1341282234", update.getMessage().getText());
-	            	SendMsg(update.getMessage().getChatId().toString(), update.getMessage().getText());
+	            	//SendMsg(update.getMessage().getChatId().toString(), update.getMessage().getText());
 	            	
 	            	if (update.getMessage().getText().equals("/start")) {
+	            		save_future_reply_id(update, "/start");
 	            		if (!Started) {
 		            		test_echo ts = new test_echo();
 		            		Thread thread = new Thread(ts);
@@ -96,16 +101,22 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	            		//System.out.println(crypto_dict.keySet().isEmpty());
 	            		while (crypto_dict.keySet().isEmpty()) {
 	            			Thread.sleep(1000);
-	            			System.out.println("======");
-	            			System.out.println("sleeping");
-		            		System.out.println(Arrays.asList(crypto_dict.keySet()));
-		            		System.out.println(crypto_dict.keySet().isEmpty());
-		            		System.out.println("=======");
+//	            			System.out.println("======");
+//	            			System.out.println("sleeping");
+//		            		System.out.println(Arrays.asList(crypto_dict.keySet()));
+//		            		System.out.println(crypto_dict.keySet().isEmpty());
+//		            		System.out.println("=======");
 	            		}
 	            		Thread.sleep(1000);
             			create_buttons("Ass and tits question", new ArrayList<>(crypto_dict.keySet()), update);
     				}
-	            	check_crypto_commands(update);
+	            	if (!dialogue_id.isEmpty()) {
+		            	if (dialogue_id.get(0).equals(String.valueOf(update.getMessage().getMessageId()))) {
+		            		check_crypto_commands(update);
+		            		dialogue_id.clear();
+		            	}
+	            	}
+	            	
 
 	        	} catch (Exception e) {
 	                e.printStackTrace();
