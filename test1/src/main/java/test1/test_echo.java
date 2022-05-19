@@ -25,7 +25,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 class User {
 	String user_id;
-	ArrayList<HashMap<String, String>> choices = new ArrayList<>();
+	ArrayList<HashMap<String, String>> crypto_choices = new ArrayList<>();
 	Map<String, String> dialogue_id = new HashMap<String, String>();
 	int dialogue_counter = 0;
 	User(String user_id){
@@ -35,20 +35,17 @@ class User {
 }
 public class test_echo extends TelegramLongPollingBot implements Runnable{
 	// list of users connected to the bot
-	HashMap<String, User> users = new HashMap<String, User>();
-
-	// crypto prices
-	static List<WebElement> prices;
+	static HashMap<String, User> users = new HashMap<String, User>();
 	// iteration through dialogue phases
-    static int dialogue_counter = 0;
+    //static int dialogue_counter = 0;
     // crypto_name : crypto_price
 	static Map<String, String> crypto_dict = new HashMap<String, String>();
 	// Firefox started?
 	static boolean Started;
 	// user_choice : value
-	static ArrayList<HashMap<String, String>> choices = new ArrayList<>();
+	//static ArrayList<HashMap<String, String>> crypto_choices = new ArrayList<>();
 	// variable to track replies to certain messages
-	static Map<String, String> dialogue_id = new HashMap<String, String>();
+	//static Map<String, String> dialogue_id = new HashMap<String, String>();
 
 	// getting future reply message id
 	public void save_future_reply_id(Update update, String command, String dialogue_phase) {
@@ -105,10 +102,13 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	}
 	
 	public void onUpdateReceived(Update update) {
-		System.out.println("message id: "+update.getMessage().getMessageId().toString()+ "message: || "+ update.getMessage().getText());
-		String user_id = update.getMessage().getChatId().toString();
-		User user = users.get(user_id);
+
 		if (update.hasMessage() && update.getMessage().hasText()) {
+			System.out.println("message id: "+update.getMessage().getMessageId().toString()+ "message: || "+ update.getMessage().getText());
+			String user_id = update.getMessage().getChatId().toString();
+			User user = users.get(user_id);
+			System.out.println("user id: "+user_id);
+			System.out.println("1: " +update.getUpdateId().toString());
 	            try {    	
 	            	// ====== start the monitoring tool =======
 	            	if (update.getMessage().getText().equals("/start")) {
@@ -129,6 +129,9 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            		Started = true;
 	            		}
     				}
+	            	if (update.getMessage().getText().equals("/clear")) {
+	            		user.crypto_choices.clear();
+	            	}
 	            	
 	            	check_crypto_commands(update);
 	            	//===== if starting command to add crypto ====
@@ -162,39 +165,39 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            		if ( user.dialogue_counter==2&& user.dialogue_id.get("command").equals("/addcrypto") && user.dialogue_id.get("dialogue_phase").equals("get_name")) {
 		            			System.out.println("running get name");
 		            			// add new choice dictionary to the list
-		            			user.choices.add(new HashMap<String, String>());
+		            			user.crypto_choices.add(new HashMap<String, String>());
 		            			// remember crypto name choice
-		            			user.choices.get(user.choices.size()-1).put("crypto_name", update.getMessage().getText().toString());
+		            			user.crypto_choices.get(user.crypto_choices.size()-1).put("crypto_name", update.getMessage().getText().toString());
 		            			create_buttons("Choose condition", new ArrayList<>(Arrays.asList("greater", "smaller")), update);
 		            			// clear space for the next awaited message
-		            			dialogue_id.clear();
+		            			user.dialogue_id.clear();
 		            			// remember next message_id and its relevance to the dialogue
 		            			save_future_reply_id(update, "/addcrypto", "get_condition");
 		            		}
 		            		// ==addcrypto -> get_name -> get_condition==
 		            		if (user.dialogue_counter==3 && user.dialogue_id.get("command").equals("/addcrypto") && user.dialogue_id.get("dialogue_phase").equals("get_condition")) {
 		            			System.out.println("running get condition");
-		            			user.choices.get(user.choices.size()-1).put("crypto_condition", update.getMessage().getText().toString());
-		            			SendMsg(update.getMessage().getChatId().toString(), "Enter chosen crypto value: ");
-		            			dialogue_id.clear();
+		            			user.crypto_choices.get(user.crypto_choices.size()-1).put("crypto_condition", update.getMessage().getText().toString());
+		            			SendMsg(user.user_id, "Enter chosen crypto value: ");
+		            			user.dialogue_id.clear();
 		            			save_future_reply_id(update, "/addcrypto", "get_value");
 		            		}
 		            		// ==addcrypto -> get_name -> get_condition -> get_value==
 		            		if (user.dialogue_counter==4 && user.dialogue_id.get("command").equals("/addcrypto") && user.dialogue_id.get("dialogue_phase").equals("get_value")) {
 		            			System.out.println("running get value and print");
-		            			user.choices.get(user.choices.size()-1).put("crypto_value", update.getMessage().getText().toString());
-		            			dialogue_id.clear();
-		            			String choice = "You chose to monitor "+user.choices.get(user.choices.size()-1).get("crypto_name")+", condition is: "
-		            					+ user.choices.get(user.choices.size()-1).get("crypto_condition") + " than "+ user.choices.get(user.choices.size()-1).get("crypto_value");
-		            			SendMsg(update.getMessage().getChatId().toString(), choice);
+		            			user.crypto_choices.get(user.crypto_choices.size()-1).put("crypto_value", update.getMessage().getText().toString());
+		            			user.dialogue_id.clear();
+		            			String choice = "You chose to monitor "+user.crypto_choices.get(user.crypto_choices.size()-1).get("crypto_name")+", condition is: "
+		            					+ user.crypto_choices.get(user.crypto_choices.size()-1).get("crypto_condition") + " than "+ user.crypto_choices.get(user.crypto_choices.size()-1).get("crypto_value");
+		            			SendMsg(user.user_id, choice);
 		            			// testing user division
 		            			StringBuilder sb = new StringBuilder();
-		            			for (HashMap<String, String> map : user.choices) {
+		            			for (HashMap<String, String> map : user.crypto_choices) {
 		            				for (String choice_str : map.values()) {
 		            					sb.append("|"+choice_str+"|");
 		            				}
 		            			}
-		            			SendMsg(update.getMessage().getChatId().toString(), sb.toString());
+		            			SendMsg(user.user_id, sb.toString());
 
 
 		            			user.dialogue_counter = 0;
@@ -218,7 +221,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
             e.printStackTrace();
         }
 	}
-
+	
 	public String getBotUsername() {
 		// TODO Auto-generated method stub
 		return "test_some_shit_bot";
@@ -228,6 +231,34 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	public String getBotToken() {
 		// TODO Auto-generated method stub
 		return "5394841904:AAEck1N7QG4kfKhW50_42MjWtjx-2jkex5U";
+	}
+	
+	public void choices_to_gate_to_msg() {
+		//System.out.println("enter 1");
+		for (String test: users.keySet()) {
+			//System.out.println(test+"test");
+		}
+		for (User user: users.values()) {
+			//System.out.println("user id "+user.user_id);
+			//System.out.println("enter 2");
+			for (HashMap<String, String> choices_dict : user.crypto_choices) {
+				//System.out.println("enter 3");
+				String chosen_crypto_price_string = crypto_dict.get(choices_dict.get("crypto_name")); 
+				float chosen_crypto_price = Float.parseFloat(chosen_crypto_price_string);
+				float trigger_crypto_price = Float.parseFloat(choices_dict.get("crypto_value"));
+				//System.out.println("real price"+chosen_crypto_price_string+" trigger price: "+ String.valueOf(trigger_crypto_price));
+				//System.out.println("smaller: "+ String.valueOf(chosen_crypto_price<trigger_crypto_price)+ " bigger: "+ String.valueOf(chosen_crypto_price>trigger_crypto_price));
+				//System.out.println("condition: "+ choices_dict.get("crypto_condition"));
+				String crypto_success_msg = choices_dict.get("crypto_name")+" is now "+choices_dict.get("crypto_condition")+
+						" than "+choices_dict.get("crypto_value")+", real-time "+choices_dict.get("crypto_name")+" value: "+chosen_crypto_price_string;
+				if (choices_dict.get("crypto_condition").equals("smaller")&&chosen_crypto_price<trigger_crypto_price) {
+					SendMsg(user.user_id, crypto_success_msg);
+				}
+				else if (choices_dict.get("crypto_condition").equals("greater")&&chosen_crypto_price>trigger_crypto_price) {
+					SendMsg(user.user_id, crypto_success_msg);
+				}
+			}
+		}
 	}
 	public void run() {
 		WebDriverManager.firefoxdriver().setup();
@@ -241,13 +272,13 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			List<WebElement> crypto_prices = driver.findElements(By.className("js-currency-price"));	
 
-			prices = driver.findElements(By.className("js-currency-price"));			
-
-			for (WebElement str:prices) {
-				crypto_dict.put(str.getAttribute("title"), str.getText());
+			for (WebElement str:crypto_prices) {
+				crypto_dict.put(str.getAttribute("title"), str.getText().replace(",", ""));
 			}
 			System.out.println("running");
+			choices_to_gate_to_msg();
 			driver.navigate().refresh();
 		}
 		
