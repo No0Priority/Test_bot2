@@ -242,22 +242,29 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 			//System.out.println("user id "+user.user_id);
 			//System.out.println("enter 2");
 			for (HashMap<String, String> choices_dict : user.crypto_choices) {
-				//System.out.println("enter 3");
-				String chosen_crypto_price_string = crypto_dict.get(choices_dict.get("crypto_name")); 
-				String trigger = choices_dict.get("crypto_value");
-				System.out.println("Trigger: "+trigger+"Real time price: "+ chosen_crypto_price_string);
-				float chosen_crypto_price = Float.parseFloat(chosen_crypto_price_string);
-				float trigger_crypto_price = Float.parseFloat(choices_dict.get("crypto_value"));
-				//System.out.println("real price"+chosen_crypto_price_string+" trigger price: "+ String.valueOf(trigger_crypto_price));
-				//System.out.println("smaller: "+ String.valueOf(chosen_crypto_price<trigger_crypto_price)+ " bigger: "+ String.valueOf(chosen_crypto_price>trigger_crypto_price));
-				//System.out.println("condition: "+ choices_dict.get("crypto_condition"));
-				String crypto_success_msg = choices_dict.get("crypto_name")+" is now "+choices_dict.get("crypto_condition")+
-						" than "+choices_dict.get("crypto_value")+", real-time "+choices_dict.get("crypto_name")+" value: "+chosen_crypto_price_string;
-				if (choices_dict.get("crypto_condition").equals("smaller")&&chosen_crypto_price<trigger_crypto_price) {
-					SendMsg(user.user_id, crypto_success_msg);
+				if (choices_dict.get("crypto_value")!=null && choices_dict.get("crypto_name")!=null) {
+					
+				
+					//System.out.println("enter 3");
+					String chosen_crypto_price_string = crypto_dict.get(choices_dict.get("crypto_name")); 
+					String trigger = choices_dict.get("crypto_value");
+					System.out.println("Trigger: "+trigger+"Real time price: "+ chosen_crypto_price_string);
+					float chosen_crypto_price = Float.parseFloat(chosen_crypto_price_string);
+					float trigger_crypto_price = Float.parseFloat(choices_dict.get("crypto_value"));
+					//System.out.println("real price"+chosen_crypto_price_string+" trigger price: "+ String.valueOf(trigger_crypto_price));
+					//System.out.println("smaller: "+ String.valueOf(chosen_crypto_price<trigger_crypto_price)+ " bigger: "+ String.valueOf(chosen_crypto_price>trigger_crypto_price));
+					//System.out.println("condition: "+ choices_dict.get("crypto_condition"));
+					String crypto_success_msg = choices_dict.get("crypto_name")+" is now "+choices_dict.get("crypto_condition")+
+							" than "+choices_dict.get("crypto_value")+", real-time "+choices_dict.get("crypto_name")+" value: "+chosen_crypto_price_string;
+					if (choices_dict.get("crypto_condition").equals("smaller")&&chosen_crypto_price<trigger_crypto_price) {
+						SendMsg(user.user_id, crypto_success_msg);
+					}
+					else if (choices_dict.get("crypto_condition").equals("greater")&&chosen_crypto_price>trigger_crypto_price) {
+						SendMsg(user.user_id, crypto_success_msg);
+					}
 				}
-				else if (choices_dict.get("crypto_condition").equals("greater")&&chosen_crypto_price>trigger_crypto_price) {
-					SendMsg(user.user_id, crypto_success_msg);
+				else {
+					continue;
 				}
 			}
 		}
