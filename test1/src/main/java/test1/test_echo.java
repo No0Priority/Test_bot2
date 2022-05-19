@@ -34,14 +34,6 @@ class User {
 
 }
 public class test_echo extends TelegramLongPollingBot implements Runnable{
-	static String convertWithIteration(Map<String, ?> map) {
-	    StringBuilder mapAsString = new StringBuilder("{");
-	    for (String key : map.keySet()) {
-	        mapAsString.append(key + "=" + map.get(key) + ", ");
-	    }
-	    mapAsString.delete(mapAsString.length()-2, mapAsString.length()).append("}");
-	    return mapAsString.toString();
-	}
 	// list of users connected to the bot
 	HashMap<String, User> users = new HashMap<String, User>();
 
@@ -196,12 +188,14 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            					+ user.choices.get(user.choices.size()-1).get("crypto_condition") + " than "+ user.choices.get(user.choices.size()-1).get("crypto_value");
 		            			SendMsg(update.getMessage().getChatId().toString(), choice);
 		            			// testing user division
-		            			String choices_str1 = "first choice: "+convertWithIteration(user.choices.get(0));
-		            			String choices_str2 = "first choice: "+convertWithIteration(user.choices.get(1));
+		            			StringBuilder sb = new StringBuilder();
+		            			for (HashMap<String, String> map : user.choices) {
+		            				for (String choice_str : map.values()) {
+		            					sb.append("|"+choice_str+"|");
+		            				}
+		            			}
+		            			SendMsg(update.getMessage().getChatId().toString(), sb.toString());
 
-		            			System.out.println(Collections.singletonList(user.choices.get(0)));
-		            			SendMsg(update.getMessage().getChatId().toString(), choices_str1);
-		            			SendMsg(update.getMessage().getChatId().toString(), choices_str2);
 
 		            			user.dialogue_counter = 0;
 		            		}
