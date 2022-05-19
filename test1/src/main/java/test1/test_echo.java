@@ -24,21 +24,24 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 
 public class test_echo extends TelegramLongPollingBot implements Runnable{
-
+	// crypto prices
 	static List<WebElement> prices;
-    static boolean first_time = true;
+	// iteration through dialogue phases
     static int dialogue_counter = 0;
+    // crypto_name : crypto_price
 	static Map<String, String> crypto_dict = new HashMap<String, String>();
+	// Firefox started?
 	static boolean Started;
+	// user_choice : value
 	static ArrayList<HashMap<String, String>> choices = new ArrayList<>(3);
 	// variable to track replies to certain messages
-	static ArrayList<String> dialogue_id = new ArrayList<String>();
-	// getting future reply message id
-	public void save_future_reply_id(Update update, String command, String dialogue_step) {
+	static Map<String, String> dialogue_id = new HashMap<String, String>();
 
-		dialogue_id.add(String.valueOf(update.getMessage().getMessageId()+2));
-		dialogue_id.add(command);
-		dialogue_id.add(dialogue_step);
+	// getting future reply message id
+	public void save_future_reply_id(Update update, String command, String dialogue_phase) {
+		dialogue_id.put("message_id", String.valueOf(update.getMessage().getMessageId()+2));
+		dialogue_id.put("command", command);
+		dialogue_id.put("dialogue_phase", dialogue_phase);
 		System.out.println("id of choice: "+update.getMessage().getMessageId().toString()+2);
 	}
 	// iterate through the list of crypto, get value of crypto in comand
@@ -92,10 +95,10 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 
 	    if (update.hasMessage() && update.getMessage().hasText()) {
 	            try {    	
-	            	// start the monitoring tool
+	            	// ====== start the monitoring tool =======
 	            	if (update.getMessage().getText().equals("/start")) {
 	            		//save_future_reply_id(update, "/start", "init");
-	            		
+	            		// if the firefox hasnt been initiated
 	            		if (!Started) {
 		            		test_echo ts = new test_echo();
 		            		Thread thread = new Thread(ts);
@@ -103,20 +106,27 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		            		Started = true;
 	            		}
     				}
+	            	
 	            	check_crypto_commands(update);
+	            	//===== if starting command to add crypto ====
 	            	if (update.getMessage().getText().equals("/addcrypto")) {
 	            		System.out.println("running add crypto");
+	            		// if crypto_dict hasnt been filled yet loop waiting
 	            		while (crypto_dict.keySet().isEmpty()) {
 	            			Thread.sleep(1000);
 	            		}
 	            		Thread.sleep(1000);
+	            		// create buttons for /addcrypto command
             			create_buttons("Choose crypto", new ArrayList<>(crypto_dict.keySet()), update);
+            			// save message id of a reply to crypto choice
             			save_future_reply_id(update, "/addcrypto", "get_name");
 	            	}
     				
-            		
+            		// ====== if a reply is awaited ======
 	            	if (!dialogue_id.isEmpty()) {
-	            		boolean replied = dialogue_id.get(0).equals(String.valueOf(update.getMessage().getMessageId()));
+	            		// if current message is awaited
+	            		boolean replied = dialogue_id.get("message_id").equals(String.valueOf(update.getMessage().getMessageId()));
+	            		// iterate through dialogue phases
 	            		dialogue_counter++;
 	            		System.out.println("======");
 	            		System.out.println("dialogue"+String.valueOf(dialogue_counter));
@@ -124,35 +134,38 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 	            		System.out.println("======");
 		            	if (replied) {
 		            		System.out.println("cehck: ");
-		            		System.out.println(dialogue_id.get(1)+ " " +dialogue_id.get(2)+ String.valueOf(dialogue_counter==1)+String.valueOf(dialogue_counter));
-		            		if ( dialogue_counter==2&& dialogue_id.get(1).equals("/addcrypto") && dialogue_id.get(2).equals("get_name")) {
+		            		System.out.println(dialogue_id.get("command")+ " " +dialogue_id.get("dialogue_phase")+ String.valueOf(dialogue_counter==1)+String.valueOf(dialogue_counter));
+		            		// ==addcrypto -> get_name==
+		            		if ( dialogue_counter==2&& dialogue_id.get("command").equals("/addcrypto") && dialogue_id.get("dialogue_phase").equals("get_name")) {
 		            			System.out.println("running get name");
+		            			// add new choice dictionary to the list
 		            			choices.add(new HashMap<String, String>());
+		            			// remember crypto name choice
 		            			choices.get(choices.size()-1).put("crypto_name", update.getMessage().getText().toString());
 		            			create_buttons("Choose condition", new ArrayList<>(Arrays.asList("greater", "smaller")), update);
+		            			// clear space for the next awaited message
 		            			dialogue_id.clear();
+		            			// remember next message_id and its relevance to the dialogue
 		            			save_future_reply_id(update, "/addcrypto", "get_condition");
 		            		}
-		            		replied = dialogue_id.get(0).equals(String.valueOf(update.getMessage().getMessageId()));
-		            		if (dialogue_counter==3 && dialogue_id.get(1).equals("/addcrypto") && dialogue_id.get(2).equals("get_condition")) {
+		            		// ==addcrypto -> get_name -> get_condition==
+		            		if (dialogue_counter==3 && dialogue_id.get("command").equals("/addcrypto") && dialogue_id.get("dialogue_phase").equals("get_condition")) {
 		            			System.out.println("running get condition");
 		            			choices.get(choices.size()-1).put("crypto_condition", update.getMessage().getText().toString());
 		            			SendMsg(update.getMessage().getChatId().toString(), "Enter chosen crypto value: ");
 		            			dialogue_id.clear();
 		            			save_future_reply_id(update, "/addcrypto", "get_value");
 		            		}
-		            		replied = dialogue_id.get(0).equals(String.valueOf(update.getMessage().getMessageId()));
-		            		if (dialogue_counter==4 && dialogue_id.get(1).equals("/addcrypto") && dialogue_id.get(2).equals("get_value")) {
+		            		// ==addcrypto -> get_name -> get_condition -> get_value==
+		            		if (dialogue_counter==4 && dialogue_id.get("command").equals("/addcrypto") && dialogue_id.get("dialogue_phase").equals("get_value")) {
 		            			System.out.println("running get value and print");
 		            			choices.get(choices.size()-1).put("crypto_value", update.getMessage().getText().toString());
 		            			dialogue_id.clear();
-		            			String choice = "You chose to monitor"+choices.get(choices.size()-1).get("crypto_name")+", condition is: "
-		            					+ choices.get(choices.size()-1).get("crypto_condition") + "than "+ choices.get(choices.size()-1).get("crypto_value");
+		            			String choice = "You chose to monitor "+choices.get(choices.size()-1).get("crypto_name")+", condition is: "
+		            					+ choices.get(choices.size()-1).get("crypto_condition") + " than "+ choices.get(choices.size()-1).get("crypto_value");
 		            			SendMsg(update.getMessage().getChatId().toString(), choice);
+		            			dialogue_counter = 0;
 		            		}
-
-		            		
-		            		
 		            	}
 	            	}
 	            	
