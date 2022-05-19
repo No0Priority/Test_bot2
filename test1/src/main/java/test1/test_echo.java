@@ -77,6 +77,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		sendMessage.setParseMode(ParseMode.MARKDOWN);
 		sendMessage.setChatId(update.getMessage().getChatId().toString());
 		ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+		replyKeyboardMarkup.setOneTimeKeyboard(true);
 		replyKeyboardMarkup.setResizeKeyboard(true);
 		List<KeyboardRow> keyboardRowList = new ArrayList<>();
 		KeyboardRow keyboardRow1 = new KeyboardRow();
@@ -262,9 +263,6 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 					else if (choices_dict.get("crypto_condition").equals("greater")&&chosen_crypto_price>trigger_crypto_price) {
 						SendMsg(user.user_id, crypto_success_msg);
 					}
-				}
-				else {
-					continue;
 				}
 			}
 		}
