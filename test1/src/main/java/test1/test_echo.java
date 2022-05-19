@@ -261,6 +261,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 		}
 	}
 	public void run() {
+		try {
 		WebDriverManager.firefoxdriver().setup();
 		WebDriver driver = new FirefoxDriver();
 		driver.get("https://www.investing.com/crypto/");
@@ -280,6 +281,10 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 			System.out.println("running");
 			choices_to_gate_to_msg();
 			driver.navigate().refresh();
+		}
+		}
+		catch (Exception e) {
+			System.out.println(" \n \n \n Error: \n \n \n "+e);
 		}
 		
 	}
