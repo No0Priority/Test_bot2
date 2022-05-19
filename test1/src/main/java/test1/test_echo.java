@@ -244,6 +244,8 @@ public class test_echo extends TelegramLongPollingBot implements Runnable{
 			for (HashMap<String, String> choices_dict : user.crypto_choices) {
 				//System.out.println("enter 3");
 				String chosen_crypto_price_string = crypto_dict.get(choices_dict.get("crypto_name")); 
+				String trigger = choices_dict.get("crypto_value");
+				System.out.println("Trigger: "+trigger+"Real time price: "+ chosen_crypto_price_string);
 				float chosen_crypto_price = Float.parseFloat(chosen_crypto_price_string);
 				float trigger_crypto_price = Float.parseFloat(choices_dict.get("crypto_value"));
 				//System.out.println("real price"+chosen_crypto_price_string+" trigger price: "+ String.valueOf(trigger_crypto_price));
