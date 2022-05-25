@@ -67,9 +67,9 @@ public class Main {
 		System.out.println("BTC"+bitc);
 
 		System.out.println("after");
-		ts.SendMsg("1341282234", "курс битка: "+bitcoin.getText());
+		ts.SendMsg("1341282234", "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ: "+bitcoin.getText());
 
-		ts.SendMsg("844626806", "курс битка: "+bitcoin.getText());
+		ts.SendMsg("844626806", "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ: "+bitcoin.getText());
 		driver.navigate().refresh();
 
 		} catch (TelegramApiException e) {
@@ -92,6 +92,7 @@ public class Main {
     // change 14:26
     public static void main(String[] args) throws InterruptedException {
     	PropertyConfigurator.configure(System.getProperty("user.dir") + "/src/main/resources/log4j.properties"); //РѕСЃС‚Р°РІРёС‚СЊ РІ РјРµР№РЅРµ
+		System.setProperty("webdriver.chrome.driver", "C:\\Users\\nidas\\Downloads\\chromedriver_win32\\chromedriver.exe");
 
         try {
         	// ===========INITIALIZATION==============
