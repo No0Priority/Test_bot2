@@ -1,5 +1,7 @@
 package test1;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,11 +43,12 @@ class User {
 	ArrayList<HashMap<String, String>> url_and_keyword = new ArrayList<>();
 
 	String url_temp;
+	HashMap<String, String> active_time = new HashMap<String,String>();
 }
 
 public class test_echo extends TelegramLongPollingBot implements Runnable {
 	public void create_main_menu(Update update) {
-		create_buttons("Choose activity", new ArrayList<>(Arrays.asList("Settings", "Stop", "Start")), update);	
+		create_buttons("Choose activity: ", new ArrayList<>(Arrays.asList("Settings", "Stop", "Start")), update);	
 	}
 	// list of users connected to the bot
 	static HashMap<String, User> users = new HashMap<String, User>();
@@ -164,6 +167,16 @@ public class test_echo extends TelegramLongPollingBot implements Runnable {
 					create_buttons("Choose option: ", new ArrayList<>(Arrays.asList("Add a webpage to selection", "Remove webpage from selection")), update);
 				}
 // ------------------------------------------------------------------------------------------------------------------
+				
+// ======================================== Time for notifications ==========================================================================
+				if (update.getMessage().getText().equals("Time for notifications")) {
+					System.out.println("running get active time");
+					SendMsg(user.user_id, "Enter active start time (format HH:MM) :");
+					save_future_reply_id(update, "Time for notifications", "get_start_time");
+					user.active_time.clear();
+				}
+// ------------------------------------------------------------------------------------------------------------------
+
 
 
 // ======================================== /start ==========================================================================
@@ -343,6 +356,30 @@ public class test_echo extends TelegramLongPollingBot implements Runnable {
 						}
 
 // ---------------------------------------- --------------------------------------------------------------------------
+// ======================================== Time for notifications |dialogue| ==========================================================================
+						if (user.dialogue_counter == 2 && user.dialogue_id.get("command").equals("Time for notifications")
+								&& user.dialogue_id.get("dialogue_phase").equals("get_start_time")) {
+							
+							String start_time = update.getMessage().getText().toString();
+							user.active_time.put("start_time", start_time);
+							SendMsg(user.user_id, "Enter active end time (format HH:MM) :");
+							save_future_reply_id(update, "Time for notifications", "get_end_time");
+
+						}
+						if (user.dialogue_counter == 3 && user.dialogue_id.get("command").equals("Time for notifications")
+								&& user.dialogue_id.get("dialogue_phase").equals("get_end_time")) {
+							
+							String end_time = update.getMessage().getText().toString();
+							user.active_time.put("end_time", end_time);
+							String success_msg = "Your active time is from"+user.active_time.get("start_time") +" to "+ user.active_time.get("end_time");
+							SendMsg(user.user_id, success_msg);
+							user.dialogue_id.clear();
+							create_main_menu(update);
+							user.dialogue_counter = 0;
+						}
+						
+// ---------------------------------------- --------------------------------------------------------------------------
+
 
 
 					
@@ -402,10 +439,30 @@ public class test_echo extends TelegramLongPollingBot implements Runnable {
 							+ chosen_crypto_price_string;
 					if (choices_dict.get("crypto_condition").equals("smaller")
 							&& chosen_crypto_price < trigger_crypto_price) {
-						if (!user.receive_msg_stopped) SendMsg(user.user_id, crypto_success_msg);
+						if (!user.receive_msg_stopped) {
+							if (user.active_time.get("start_time")==null || user.active_time.get("end_time")==null) {
+								SendMsg(user.user_id, crypto_success_msg);
+							}
+							else {
+								if (if_now_is_active_time(user.active_time.get("start_time"), user.active_time.get("end_time"))){
+									SendMsg(user.user_id, crypto_success_msg);
+								}
+							}
+							
+						}
 					} else if (choices_dict.get("crypto_condition").equals("greater")
 							&& chosen_crypto_price > trigger_crypto_price) {
-						if (!user.receive_msg_stopped) SendMsg(user.user_id, crypto_success_msg);
+						if (!user.receive_msg_stopped) {
+							if (user.active_time.get("start_time")==null || user.active_time.get("end_time")==null) {
+								SendMsg(user.user_id, crypto_success_msg);
+							}
+							else {
+								if (if_now_is_active_time(user.active_time.get("start_time"), user.active_time.get("end_time"))){
+									SendMsg(user.user_id, crypto_success_msg);
+								}
+							}
+							
+						}
 					}
 				}
 			}
@@ -429,15 +486,71 @@ public class test_echo extends TelegramLongPollingBot implements Runnable {
 					String page_text = driver_url.findElement(By.tagName("html")).getAttribute("innerHTML");
 					//System.out.println("||||||||||| \n \n \n \n " + page_text + "||||||||||| \n \n \n \n ");
 					if (page_text.contains(user_keyword)) {
-						String succes_msg = "Page " + user_url + " contains keyword: " + user_keyword;
-						if (!user.receive_msg_stopped) SendMsg(user.user_id, succes_msg);
+						String success_msg = "Page " + user_url + " contains keyword: " + user_keyword;
+						  DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+						  String local_time_string = dtf.format(LocalTime.now()).toString();
+						  
+						if (!user.receive_msg_stopped) {
+							if (user.active_time.get("start_time")==null || user.active_time.get("end_time")==null) {
+								SendMsg(user.user_id, success_msg);
+							}
+							else {
+								if (if_now_is_active_time(user.active_time.get("start_time"), user.active_time.get("end_time"))){
+									SendMsg(user.user_id, success_msg);
+								}
+							}
+							
+						}
 					}
 					driver_url.close();
 				}
 			}
 		}
 	}
+	static boolean if_now_is_active_time(String start_time, String end_time) {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+		String local_time_string = dtf.format(LocalTime.now()).toString();
 
+		String start_time_string = start_time;
+		String end_time_string = end_time;
+		System.out.println("local_time_string: " + local_time_string + "start_time: " + start_time_string + "end_time: "
+				+ end_time_string);
+		String[] local_time_array = local_time_string.split(":");
+		String[] start_time_array = start_time_string.split(":");
+		String[] end_time_array = end_time_string.split(":");
+//		System.out.println(Arrays.asList(local_time_array) + "" + Arrays.asList(start_time_array) + ""
+//				+ Arrays.asList(end_time_array));
+		boolean start_hh = Integer.parseInt(start_time_array[0]) <= Integer.parseInt(local_time_array[0]);
+		boolean start_hh_equals = Integer.parseInt(start_time_array[0]) == Integer.parseInt(local_time_array[0]);
+		boolean start_mm = Integer.parseInt(start_time_array[1]) <= Integer.parseInt(local_time_array[1]);
+		boolean end_hh = Integer.parseInt(local_time_array[0]) <= Integer.parseInt(end_time_array[0]);
+		boolean end_hh_equals = Integer.parseInt(local_time_array[0]) == Integer.parseInt(end_time_array[0]);
+		boolean end_mm = Integer.parseInt(local_time_array[1]) <= Integer.parseInt(end_time_array[1]);
+
+		boolean more_than_start = false;
+		boolean less_than_end = false;
+
+		if (start_hh) {
+			if (start_hh_equals) {
+				if (start_mm) {
+					more_than_start = true;
+				}
+			} else {
+				more_than_start = true;
+			}
+		}
+		if (end_hh) {
+			if (end_hh_equals) {
+				if (end_mm) {
+					less_than_end = true;
+				}
+			} else {
+				less_than_end = true;
+			}
+		}
+
+		return more_than_start && less_than_end;
+	}
 	public void run() {
 
 			WebDriverManager.firefoxdriver().setup();
@@ -445,7 +558,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable {
 
 			driver.get("https://www.investing.com/crypto/");
 
-			for (int i = 0; i < 100; i++) {
+			for (int i = 0; i < 10000; i++) {
 				try {
 				Thread.sleep(3000);
 				List<WebElement> crypto_prices = driver.findElements(By.className("js-currency-price"));
@@ -453,7 +566,7 @@ public class test_echo extends TelegramLongPollingBot implements Runnable {
 				for (WebElement str : crypto_prices) {
 					crypto_dict.put(str.getAttribute("title"), str.getText().replace(",", ""));
 				}
-				System.out.println("running");
+				//System.out.println("running");
 				choices_to_gate_to_msg();
 				populate_url_arr();
 				driver.navigate().refresh();
